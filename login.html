@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RailTicket - Login & User Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+
+  <!-- TOP BRAND HEADER -->
+  <header class="bg-blue-700 text-white shadow-md">
+    <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-9 h-9 rounded-lg bg-white text-blue-700 flex items-center justify-center font-bold text-lg shadow-sm">
+          <i class="fa-solid fa-train"></i>
+        </div>
+        <span class="text-xl font-bold tracking-tight">Rail<span class="text-amber-300">Ticket</span></span>
+        <span class="text-[11px] bg-blue-800 text-blue-200 px-2 py-0.5 rounded ml-1 font-semibold uppercase tracking-wider hidden sm:inline">Authentication Portal</span>
+      </div>
+
+      <!-- Quick Demo Login Button -->
+      <button onclick="fillDemoAndLogin()" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold transition shadow-sm text-xs sm:text-sm flex items-center space-x-1">
+        <span>⚡ 1-Click Demo Login</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- LOGIN CARD CONTAINER -->
+  <main class="flex-grow flex items-center justify-center px-4 py-10">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+      
+      <!-- Card Header Banner -->
+      <div class="bg-gradient-to-r from-blue-700 to-indigo-700 p-6 text-white text-center">
+        <div class="w-14 h-14 bg-white/10 rounded-2xl mx-auto flex items-center justify-center text-2xl mb-3 border border-white/20">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <h1 class="text-2xl font-bold">Welcome Back</h1>
+        <p class="text-xs text-blue-100 mt-1">Sign in to book tickets, manage reservations & check PNR</p>
+      </div>
+
+      <!-- Tab Switcher (Sign In / Register) -->
+      <div class="flex border-b border-slate-200 text-sm font-bold bg-slate-50 text-slate-500">
+        <button type="button" id="tab-login-btn" onclick="toggleAuthTab('login')" class="flex-1 py-3 text-center border-b-2 border-blue-600 text-blue-600 bg-white">
+          Sign In
+        </button>
+        <button type="button" id="tab-signup-btn" onclick="toggleAuthTab('signup')" class="flex-1 py-3 text-center border-b-2 border-transparent hover:text-slate-700">
+          New Registration
+        </button>
+      </div>
+
+      <!-- FORM BODY -->
+      <div class="p-6 space-y-4">
+        
+        <!-- ALERT MESSAGE -->
+        <div id="authAlert" class="hidden p-3 rounded-lg text-xs font-semibold"></div>
+
+        <!-- ==================== SIGN IN FORM ==================== -->
+        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+          
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
+              <i class="fa-solid fa-user text-blue-600 mr-1"></i> Username or Email
+            </label>
+            <input type="text" id="loginUsername" required value="aditya_sharma" placeholder="Enter username or email"
+              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-600 focus:bg-white transition">
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-xs font-bold text-slate-600 uppercase">
+                <i class="fa-solid fa-lock text-blue-600 mr-1"></i> Password
+              </label>
+              <a href="#" onclick="alert('Demo Mode: Use password: pass123'); return false;" class="text-xs text-blue-600 hover:underline">Forgot?</a>
+            </div>
+            <div class="relative">
+              <input type="password" id="loginPassword" required value="pass123" placeholder="Enter your password"
+                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-600 focus:bg-white transition">
+              <button type="button" onclick="togglePasswordVisibility('loginPassword')" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 text-xs">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Simple Security Captcha -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
+              <i class="fa-solid fa-shield-halved text-emerald-600 mr-1"></i> Security Verification
+            </label>
+            <div class="flex items-center space-x-2">
+              <div id="captchaDisplay" class="px-4 py-2 bg-slate-200 text-slate-800 font-mono font-bold tracking-widest text-base rounded-lg border border-slate-300 select-none line-through">
+                7K9X
+              </div>
+              <button type="button" onclick="generateCaptcha()" title="Refresh Captcha" class="p-2 text-slate-500 hover:text-blue-600 text-sm">
+                <i class="fa-solid fa-arrows-rotate"></i>
+              </button>
+              <input type="text" id="captchaInput" required placeholder="Enter code"
+                class="flex-grow px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-mono uppercase font-bold text-slate-800">
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-600">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" checked class="w-4 h-4 rounded text-blue-600">
+              <span>Remember me</span>
+            </label>
+            <span class="text-slate-400">IRCTC PRS Verified</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center space-x-2 text-sm">
+            <span>Sign In & Continue</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+
+          <!-- Guest Login -->
+          <div class="text-center pt-2">
+            <a href="index.html" class="text-xs text-slate-500 hover:text-blue-700 font-semibold underline">
+              Skip login & continue as Guest →
+            </a>
+          </div>
+
+        </form>
+
+        <!-- ==================== SIGN UP FORM (HIDDEN INITIALLY) ==================== -->
+        <form id="signupForm" onsubmit="handleSignup(event)" class="space-y-4 hidden">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Full Name</label>
+            <input type="text" id="regName" required placeholder="e.g. Rahul Sharma"
+              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Mobile Number</label>
+              <input type="tel" id="regMobile" required placeholder="9876543210"
+                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Create Password</label>
+              <input type="password" id="regPassword" required placeholder="••••••••"
+                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Email ID</label>
+            <input type="email" id="regEmail" required placeholder="name@example.com"
+              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold">
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center space-x-2 text-sm">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Create Account & Log In</span>
+          </button>
+        </form>
+
+      </div>
+
+      <!-- Card Footer -->
+      <div class="bg-slate-50 p-4 border-t border-slate-200 text-center text-xs text-slate-500">
+        <span>🔒 Secure 256-bit SSL encrypted connection</span>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 text-slate-500 text-xs py-4 text-center">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span class="font-bold text-slate-700">RailTicket Authentication System</span>
+      <span>Created for project presentation & demo</span>
+    </div>
+  </footer>
+
+  <!-- AUTHENTICATION SCRIPT -->
+  <script>
+    let currentCaptcha = '';
+
+    // Generate random 4-character alphanumeric captcha
+    function generateCaptcha() {
+      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+      let code = '';
+      for (let i = 0; i < 4; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      currentCaptcha = code;
+      const display = document.getElementById('captchaDisplay');
+      if (display) display.innerText = code;
+      const input = document.getElementById('captchaInput');
+      if (input) input.value = '';
+    }
+
+    // Toggle between Sign In and Sign Up tabs
+    function toggleAuthTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const loginBtn = document.getElementById('tab-login-btn');
+      const signupBtn = document.getElementById('tab-signup-btn');
+      const alertBox = document.getElementById('authAlert');
+
+      alertBox.classList.add('hidden');
+
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        loginBtn.className = 'flex-1 py-3 text-center border-b-2 border-blue-600 text-blue-600 bg-white';
+        signupBtn.className = 'flex-1 py-3 text-center border-b-2 border-transparent hover:text-slate-700';
+      } else {
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+        signupBtn.className = 'flex-1 py-3 text-center border-b-2 border-emerald-600 text-emerald-600 bg-white';
+        loginBtn.className = 'flex-1 py-3 text-center border-b-2 border-transparent hover:text-slate-700';
+      }
+    }
+
+    // Toggle password show/hide
+    function togglePasswordVisibility(fieldId) {
+      const field = document.getElementById(fieldId);
+      if (field.type === 'password') {
+        field.type = 'text';
+      } else {
+        field.type = 'password';
+      }
+    }
+
+    // Handle Sign In submission
+    function handleLogin(event) {
+      event.preventDefault();
+
+      const username = document.getElementById('loginUsername').value.trim();
+      const captchaEntered = document.getElementById('captchaInput').value.trim().toUpperCase();
+      const alertBox = document.getElementById('authAlert');
+
+      // Verify captcha
+      if (captchaEntered !== currentCaptcha) {
+        alertBox.className = 'p-3 rounded-lg text-xs font-semibold bg-rose-50 border border-rose-300 text-rose-800';
+        alertBox.innerText = '❌ Invalid captcha code. Please re-enter the characters shown.';
+        alertBox.classList.remove('hidden');
+        generateCaptcha();
+        return;
+      }
+
+      // Successful login
+      alertBox.className = 'p-3 rounded-lg text-xs font-semibold bg-emerald-50 border border-emerald-300 text-emerald-800';
+      alertBox.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Login successful! Redirecting to booking portal...';
+      alertBox.classList.remove('hidden');
+
+      // Save user session in localStorage
+      const userObj = {
+        username: username,
+        name: username.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        mobile: '9876543210',
+        loggedIn: true,
+        loginTime: new Date().toLocaleTimeString()
+      };
+      localStorage.setItem('railticket_user', JSON.stringify(userObj));
+
+      // Redirect to main booking page
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 700);
+    }
+
+    // Handle New Registration
+    function handleSignup(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('regName').value.trim();
+      const mobile = document.getElementById('regMobile').value.trim();
+      const alertBox = document.getElementById('authAlert');
+
+      alertBox.className = 'p-3 rounded-lg text-xs font-semibold bg-emerald-50 border border-emerald-300 text-emerald-800';
+      alertBox.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Account created! Redirecting to booking portal...';
+      alertBox.classList.remove('hidden');
+
+      const userObj = {
+        username: name.toLowerCase().replace(/\s+/g, '_'),
+        name: name,
+        mobile: mobile,
+        loggedIn: true,
+        loginTime: new Date().toLocaleTimeString()
+      };
+      localStorage.setItem('railticket_user', JSON.stringify(userObj));
+
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 700);
+    }
+
+    // ⚡ 1-Click Demo Login
+    function fillDemoAndLogin() {
+      toggleAuthTab('login');
+      document.getElementById('loginUsername').value = 'aditya_sharma';
+      document.getElementById('loginPassword').value = 'pass123';
+      document.getElementById('captchaInput').value = currentCaptcha;
+      
+      const form = document.getElementById('loginForm');
+      if (typeof form.requestSubmit === 'function') {
+        form.requestSubmit();
+      } else {
+        handleLogin(new Event('submit'));
+      }
+    }
+
+    // Initialize captcha on load
+    document.addEventListener('DOMContentLoaded', () => {
+      generateCaptcha();
+      // Pre-fill captcha input so user doesn't even have to type it in demo!
+      setTimeout(() => {
+        const input = document.getElementById('captchaInput');
+        if (input && currentCaptcha) input.value = currentCaptcha;
+      }, 100);
+    });
+  </script>
+</body>
+</html>
